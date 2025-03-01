@@ -36,3 +36,17 @@ https://qiita.com/mmaumtjgj/items/19e866f31541abb6c614
     else 
       @port.status = publish_waite
     end
+
+
+  def create
+    authorize(Article)
+
+    @article = Article.new(article_params)
+    @article.state = :draft
+
+    if @article.save
+      redirect_to edit_admin_article_path(@article.uuid)
+    else
+      render :new
+    end
+  end
