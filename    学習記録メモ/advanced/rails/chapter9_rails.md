@@ -1,4 +1,59 @@
 ***
+Active Storageにてリンク削除を個別にする方法
+
+基礎
+railsにて渡したパラメータを削除させたい。
+現状は削除ボタンをクリックすると全て削除してしまう。
+それを防ぐためにまずはコントローラーに個別のパラメーターを渡す方法ことが可能かで考えてる。
+```
+html.erb
+<%= link_to("削除", "/users/#{user.id}/destroy", {method: "post"})%>
+
+controller.rb
+def destroy
+ user User.find_by(id: params[:id])
+ user.destroy
+ redirect_to("/users/index")
+end
+
+
+今回だと送るパラメーターは下記になる
+
+
+少し調べてみた結果
+controller側でのdestory アクションを分け、その分けアクションに各アクションを飛ばしてやればいいのではと感じました。
+現状destoryアクション内で条件分岐をしようとしてしていましたが、
+link_toで送るアクション自体を変更すればいいのでは考えました。
+参考にした記事は下記
+https://stackoverflow.com/questions/49515529/rails-5-2-active-storage-purging-deleting-attachments
+
+views側は下記
+```
+<%= link_to, 'Remove', delete_image_attachment_collections_url(image.
+signed_id) 
+                method: :delete,
+                data: { confirm: 'Are you sure? } %>
+```
+controller側で定義する。
+```
+def delete_image_attacment
+  @image = ActiveStorage::Blob.find_signed(params[:id])
+  @image.purge
+end
+```
+routes.rbはこうなる
+```
+resources :collections do
+  member do
+    delete :delete_image_attachment
+  end
+end
+```
+
+
+
+
+***
 `maetadata` メソッド
  自身が持つメタデータ（他から任意の値を設定してもよい）を返す
 ***
